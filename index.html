@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expert Biblique IA</title>
+  <title>Expert Biblique IA — Google Gemini</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -29,7 +29,6 @@
       overflow-x: hidden;
     }
 
-    /* Animated background */
     .bg {
       position: fixed; inset: 0; z-index: 0;
       background: radial-gradient(ellipse at 20% 20%, #2a1a08 0%, #0e0a06 60%),
@@ -49,7 +48,6 @@
       display: flex; flex-direction: column; gap: 20px;
     }
 
-    /* Header */
     .header {
       text-align: center;
       padding: 36px 20px 28px;
@@ -89,7 +87,6 @@
       margin-top: 6px;
     }
 
-    /* Chat area */
     .chat-box {
       background: linear-gradient(160deg, #1e1408 0%, #150f07 100%);
       border: 1px solid var(--gold-dim);
@@ -147,7 +144,6 @@
       padding: 0 6px;
     }
 
-    /* Typing indicator */
     .typing-wrap {
       display: none;
       align-items: flex-start;
@@ -176,7 +172,6 @@
       30% { transform: translateY(-6px); opacity: 1; }
     }
 
-    /* Suggestions */
     .suggestions {
       padding: 10px 20px 4px;
       display: flex; flex-wrap: wrap; gap: 8px;
@@ -199,7 +194,6 @@
       border-color: var(--gold);
     }
 
-    /* Input */
     .input-row {
       display: flex;
       gap: 10px;
@@ -238,7 +232,6 @@
     .send-btn:hover { background: linear-gradient(135deg, #f0d080, #c9a84c); }
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Footer note */
     .footer {
       text-align: center;
       font-family: 'Crimson Pro', serif;
@@ -270,9 +263,7 @@
   <div class="chat-box">
     <div class="messages" id="messages">
       <div class="msg bot">
-        <div class="bubble">🙏 <strong>Salam et Bienvenue !</strong>
-
-Je suis votre guide biblique. Posez-moi n'importe quelle question sur la Bible — personnages, récits, versets, significations théologiques — je vous répondrai avec précision et bienveillance.</div>
+        <div class="bubble">🙏 <strong>Bienvenue, cher cherchant de vérité !</strong><br><br>Je suis votre guide biblique. Posez-moi n'importe quelle question sur la Bible — personnages, récits, versets, significations théologiques — je vous répondrai avec précision et bienveillance.</div>
         <div class="msg-time">📖 Prêt</div>
       </div>
     </div>
@@ -296,22 +287,16 @@ Je suis votre guide biblique. Posez-moi n'importe quelle question sur la Bible �
   </div>
 
   <div class="footer">
-    Propulsé par Claude AI · <a href="https://github.com" target="_blank">Publier sur GitHub Pages</a>
+    ✝ Par la grâce de Dieu
   </div>
 </div>
 
 <script>
-  const SYSTEM_PROMPT = `Tu es un expert biblique, théologien et historien chrétien de haut niveau. Tu réponds uniquement aux questions sur la Bible (Ancien et Nouveau Testament).
-
-Règles :
-- Cite toujours les références précises (Livre Chapitre:Verset, ex: Jean 3:16)
-- Structure ta réponse clairement
-- Sois humble, bienveillant, pédagogue
-- Réponds toujours en français
-- Si une question est hors sujet biblique, redirige poliment
-- Maximum 400 mots par réponse`;
-
-  const history = [];
+  // 🔑 REMPLACEZ CETTE CLÉ PAR VOTRE VRAIE CLÉ GOOGLE GEMINI
+  const GEMINI_API_KEY = "AIzaSyBZsy1PaKYKCWk1CSb8OVVCXoF1fPfwr2Q";
+  const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+  
+  let history = [];
 
   async function askQuestion() {
     const input = document.getElementById('question');
@@ -324,28 +309,44 @@ Règles :
     document.getElementById('typing').classList.add('active');
     document.getElementById('suggestions').style.display = 'none';
 
-    history.push({ role: 'user', content: question });
-
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: history
+          contents: [{
+            parts: [{
+              text: `Tu es un expert biblique, théologien et historien chrétien. Tu réponds uniquement aux questions sur la Bible (Ancien et Nouveau Testament).
+Règles impératives:
+- Cite toujours les références précises (Livre Chapitre:Verset, ex: Jean 3:16)
+- Structure ta réponse clairement
+- Sois humble, bienveillant, pédagogue
+- Réponds toujours en français
+- Si une question est hors sujet biblique, redirige poliment vers la Bible
+- Maximum 400 mots par réponse
+
+Voici la question de l'utilisateur : ${question}`
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1000
+          }
         })
       });
 
-      const data = await res.json();
-      const reply = data.content?.[0]?.text || "❌ Réponse indisponible.";
-
-      history.push({ role: 'assistant', content: reply });
-      addMessage(reply, 'bot');
-
-    } catch (e) {
-      addMessage('❌ Erreur de connexion. Vérifiez votre accès internet.', 'bot');
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('Erreur API Gemini:', data.error);
+        addMessage("❌ Erreur d'identification. Vérifiez votre clé API Google Gemini.\n\nCréez-en une gratuite sur https://makersuite.google.com/app/apikey", 'bot');
+      } else {
+        const reply = data.candidates[0].content.parts[0].text;
+        addMessage(reply, 'bot');
+      }
+    } catch (error) {
+      console.error('Erreur réseau:', error);
+      addMessage("❌ Problème de connexion. Vérifiez votre accès internet et que l'API Gemini est accessible.", 'bot');
     } finally {
       document.getElementById('sendBtn').disabled = false;
       document.getElementById('typing').classList.remove('active');
@@ -359,8 +360,8 @@ Règles :
 
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.textContent = text;
-
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    
     const time = document.createElement('div');
     time.className = 'msg-time';
     const now = new Date();
