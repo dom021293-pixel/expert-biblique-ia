@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📖 Expert Biblique IA</title>
     <style>
         * {
@@ -29,7 +29,6 @@
             background: rgba(255,255,255,0.1);
             border-radius: 20px;
             margin-bottom: 20px;
-            backdrop-filter: blur(10px);
         }
         
         .header h1 {
@@ -127,11 +126,6 @@
             border-radius: 25px;
             font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .input-area button:hover {
-            background: #0051d5;
         }
         
         .input-area button:disabled {
@@ -181,7 +175,9 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api/bible';
+        // Clé API Groq (gratuite)
+        const API_KEY = 'gsk_Y3n9v3MqjR7xW2kLpB4dF8gH6jK1yU5tN7mQ9wE3rT5yU7iO0pA';
+        const API_URL = 'https://api.groq.com/openai/v1/chat/completions';
         
         async function askQuestion() {
             const input = document.getElementById('question');
@@ -189,11 +185,9 @@
             
             if (!question) return;
             
-            // Afficher la question de l'utilisateur
             addMessage(question, 'user');
             input.value = '';
             
-            // Désactiver le bouton
             const btn = document.getElementById('sendBtn');
             btn.disabled = true;
             document.getElementById('typing').style.display = 'block';
@@ -203,15 +197,31 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
                     },
-                    body: JSON.stringify({ question: question })
+                    body: JSON.stringify({
+                        model: 'llama3-8b-8192',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Tu es un expert biblique, théologien et historien. Tu réponds aux questions sur la Bible avec précision, en citant les versets (livre, chapitre, verset). Si tu ne sais pas, tu dis "Je ne sais pas". Sois humble, bienveillant et parle en français.'
+                            },
+                            {
+                                role: 'user',
+                                content: question
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 1000
+                    })
                 });
                 
                 const data = await response.json();
-                addMessage(data.reponse, 'bot');
+                const reponse = data.choices[0].message.content;
+                addMessage(reponse, 'bot');
             } catch (error) {
                 console.error('Erreur:', error);
-                addMessage('❌ Désolé, le service n\'est pas disponible. Vérifiez que le serveur est allumé.', 'bot');
+                addMessage('❌ Désolé, une erreur est survenue. Réessayez plus tard.', 'bot');
             } finally {
                 btn.disabled = false;
                 document.getElementById('typing').style.display = 'none';
