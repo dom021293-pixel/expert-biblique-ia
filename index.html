@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Expert Biblique IA — Google Gemini</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
   <style>
@@ -287,16 +287,14 @@
   </div>
 
   <div class="footer">
-    ✝ Par la grâce de Dieu
+    ✝ Par la grâce de Dieu — Basé sur Google Gemini
   </div>
 </div>
 
 <script>
-  // 🔑 REMPLACEZ CETTE CLÉ PAR VOTRE VRAIE CLÉ GOOGLE GEMINI
+  // 🔑 VOTRE CLÉ API GEMINI (valide)
   const GEMINI_API_KEY = "AIzaSyC2s7fhtvVm5QwUakkxHr_1xv91GEJhv-I";
   const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-  
-  let history = [];
 
   async function askQuestion() {
     const input = document.getElementById('question');
@@ -316,21 +314,21 @@
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `Tu es un expert biblique, théologien et historien chrétien. Tu réponds uniquement aux questions sur la Bible (Ancien et Nouveau Testament).
-Règles impératives:
-- Cite toujours les références précises (Livre Chapitre:Verset, ex: Jean 3:16)
+              text: `Tu es un expert biblique, théologien et historien chrétien.
+Tu réponds aux questions sur la Bible avec précision.
+Règnes impératives:
+- Cite TOUJOURS les références précises (Livre Chapitre:Verset)
 - Structure ta réponse clairement
 - Sois humble, bienveillant, pédagogue
-- Réponds toujours en français
-- Si une question est hors sujet biblique, redirige poliment vers la Bible
-- Maximum 400 mots par réponse
+- Réponds TOUJOURS en français
+- Maximum 400 mots
 
-Voici la question de l'utilisateur : ${question}`
+Question de l'utilisateur: ${question}`
             }]
           }],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 1000
+            maxOutputTokens: 800
           }
         })
       });
@@ -338,15 +336,20 @@ Voici la question de l'utilisateur : ${question}`
       const data = await response.json();
       
       if (data.error) {
-        console.error('Erreur API Gemini:', data.error);
-        addMessage("❌ Erreur d'identification. Vérifiez votre clé API Google Gemini.\n\nCréez-en une gratuite sur https://makersuite.google.com/app/apikey", 'bot');
-      } else {
+        console.error('Erreur:', data.error);
+        let erreurMsg = "❌ Erreur avec l'IA.\n\n";
+        if (data.error.message) erreurMsg += data.error.message;
+        else erreurMsg += "Vérifiez votre clé API sur https://makersuite.google.com/app/apikey";
+        addMessage(erreurMsg, 'bot');
+      } else if (data.candidates && data.candidates[0]) {
         const reply = data.candidates[0].content.parts[0].text;
         addMessage(reply, 'bot');
+      } else {
+        addMessage("❌ Réponse inattendue de l'API.", 'bot');
       }
     } catch (error) {
       console.error('Erreur réseau:', error);
-      addMessage("❌ Problème de connexion. Vérifiez votre accès internet et que l'API Gemini est accessible.", 'bot');
+      addMessage("❌ Problème de connexion. Vérifiez votre accès internet.", 'bot');
     } finally {
       document.getElementById('sendBtn').disabled = false;
       document.getElementById('typing').classList.remove('active');
