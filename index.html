@@ -1,260 +1,381 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>📖 Expert Biblique IA</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .header h1 {
-            color: #ffd700;
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            color: #ccc;
-            font-size: 0.9em;
-        }
-        
-        .chat-container {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .messages {
-            height: 500px;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        
-        .message {
-            margin-bottom: 15px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .user-message {
-            align-items: flex-end;
-        }
-        
-        .bot-message {
-            align-items: flex-start;
-        }
-        
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 20px;
-            word-wrap: break-word;
-        }
-        
-        .user-message .message-bubble {
-            background: #007aff;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .bot-message .message-bubble {
-            background: #e5e5ea;
-            color: #000;
-            border-bottom-left-radius: 5px;
-        }
-        
-        .message-time {
-            font-size: 0.7em;
-            color: #888;
-            margin-top: 5px;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-        
-        .input-area {
-            display: flex;
-            padding: 15px;
-            background: white;
-            border-top: 1px solid #ddd;
-        }
-        
-        .input-area input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            font-size: 16px;
-            outline: none;
-        }
-        
-        .input-area input:focus {
-            border-color: #007aff;
-        }
-        
-        .input-area button {
-            margin-left: 10px;
-            padding: 12px 24px;
-            background: #007aff;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        
-        .input-area button:hover {
-            background: #0051d5;
-        }
-        
-        .input-area button:disabled {
-            background: #999;
-            cursor: not-allowed;
-        }
-        
-        .typing {
-            color: #666;
-            font-style: italic;
-            padding: 10px 20px;
-            background: #f5f5f5;
-        }
-        
-        @media (max-width: 600px) {
-            .message-bubble {
-                max-width: 90%;
-            }
-            .header h1 {
-                font-size: 1.5em;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Biblique IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #f0d080;
+      --gold-dim: #7a6030;
+      --parchment: #f5edd6;
+      --ink: #1a120b;
+      --brown: #3b2a1a;
+      --brown-light: #5c4030;
+      --shadow: rgba(0,0,0,0.5);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      background: #0e0a06;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 20% 20%, #2a1a08 0%, #0e0a06 60%),
+                  radial-gradient(ellipse at 80% 80%, #1a0e04 0%, transparent 60%);
+    }
+    .bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a84c' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .wrapper {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 780px;
+      padding: 20px 16px 40px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 36px 20px 28px;
+      position: relative;
+    }
+    .header::before, .header::after {
+      content: '';
+      display: block;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 12px auto;
+      width: 80%;
+    }
+    .cross-icon {
+      font-size: 2.8em;
+      display: block;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 0 12px var(--gold-dim));
+      animation: glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+      from { filter: drop-shadow(0 0 8px var(--gold-dim)); }
+      to   { filter: drop-shadow(0 0 20px var(--gold)); }
+    }
+    .header h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.4em, 4vw, 2.2em);
+      color: var(--gold-light);
+      letter-spacing: 0.08em;
+      text-shadow: 0 2px 20px var(--gold-dim);
+    }
+    .header p {
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      color: #a08050;
+      font-size: 1em;
+      margin-top: 6px;
+    }
+
+    /* Chat area */
+    .chat-box {
+      background: linear-gradient(160deg, #1e1408 0%, #150f07 100%);
+      border: 1px solid var(--gold-dim);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,168,76,0.15);
+    }
+
+    .messages {
+      height: 460px;
+      overflow-y: auto;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+    }
+    .messages::-webkit-scrollbar { width: 5px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 10px; }
+
+    .msg { display: flex; flex-direction: column; gap: 4px; animation: fadeUp 0.35s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg.user { align-items: flex-end; }
+    .msg.bot  { align-items: flex-start; }
+
+    .bubble {
+      max-width: 82%;
+      padding: 13px 18px;
+      border-radius: 18px;
+      line-height: 1.65;
+      font-size: 0.97em;
+    }
+    .msg.user .bubble {
+      background: linear-gradient(135deg, #7a5c20, #5a3e10);
+      color: var(--parchment);
+      border-bottom-right-radius: 4px;
+      border: 1px solid var(--gold-dim);
+    }
+    .msg.bot .bubble {
+      background: linear-gradient(135deg, #2a1e0e, #1e1408);
+      color: #e8d8b0;
+      border-bottom-left-radius: 4px;
+      border: 1px solid #3a2a15;
+      white-space: pre-wrap;
+    }
+    .msg.bot .bubble strong { color: var(--gold-light); }
+
+    .msg-time {
+      font-size: 0.7em;
+      color: #5a4a30;
+      padding: 0 6px;
+    }
+
+    /* Typing indicator */
+    .typing-wrap {
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 0 20px 12px;
+    }
+    .typing-wrap.active { display: flex; }
+    .typing-dots {
+      background: #2a1e0e;
+      border: 1px solid #3a2a15;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      padding: 12px 18px;
+      display: flex; gap: 6px; align-items: center;
+    }
+    .typing-dots span {
+      width: 7px; height: 7px;
+      background: var(--gold-dim);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Suggestions */
+    .suggestions {
+      padding: 10px 20px 4px;
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .suggestion-btn {
+      background: rgba(201,168,76,0.07);
+      border: 1px solid var(--gold-dim);
+      color: #b08840;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-btn:hover {
+      background: rgba(201,168,76,0.15);
+      color: var(--gold-light);
+      border-color: var(--gold);
+    }
+
+    /* Input */
+    .input-row {
+      display: flex;
+      gap: 10px;
+      padding: 14px 16px;
+      border-top: 1px solid #2a1e0e;
+      background: rgba(0,0,0,0.2);
+    }
+    .input-row input {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid #3a2a15;
+      border-radius: 30px;
+      padding: 12px 20px;
+      color: var(--parchment);
+      font-family: 'Crimson Pro', serif;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-row input::placeholder { color: #5a4a30; font-style: italic; }
+    .input-row input:focus { border-color: var(--gold-dim); }
+
+    .send-btn {
+      background: linear-gradient(135deg, #c9a84c, #a07830);
+      border: none;
+      border-radius: 30px;
+      padding: 12px 22px;
+      color: #1a120b;
+      font-family: 'Cinzel', serif;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .send-btn:hover { background: linear-gradient(135deg, #f0d080, #c9a84c); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Footer note */
+    .footer {
+      text-align: center;
+      font-family: 'Crimson Pro', serif;
+      font-style: italic;
+      color: #3a2a15;
+      font-size: 0.8em;
+    }
+    .footer a { color: var(--gold-dim); text-decoration: none; }
+    .footer a:hover { color: var(--gold); }
+
+    @media (max-width: 500px) {
+      .messages { height: 380px; }
+      .bubble { max-width: 92%; font-size: 0.93em; }
+      .send-btn { padding: 12px 14px; font-size: 0.8em; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📖 Expert Biblique IA</h1>
-            <p>Posez votre question sur la Bible - Réponses avec versets</p>
-        </div>
-        
-        <div class="chat-container">
-            <div class="messages" id="messages">
-                <div class="message bot-message">
-                    <div class="message-bubble">
-                        🙏 Bonjour ! Je suis votre expert biblique. Posez-moi une question sur la Bible, je vous répondrai avec des versets précis.
-                    </div>
-                    <div class="message-time">📖</div>
-                </div>
-            </div>
-            <div class="input-area">
-                <input type="text" id="question" placeholder="Ex: Qui est David ? Que dit la Bible sur l'amour ?" onkeypress="if(event.key==='Enter') askQuestion()">
-                <button id="sendBtn" onclick="askQuestion()">Envoyer</button>
-            </div>
-            <div id="typing" class="typing" style="display: none;">✍️ L'expert biblique écrit...</div>
-        </div>
+
+<div class="bg"></div>
+
+<div class="wrapper">
+  <div class="header">
+    <span class="cross-icon">✝</span>
+    <h1>Expert Biblique IA</h1>
+    <p>Posez votre question — Réponses avec versets précis</p>
+  </div>
+
+  <div class="chat-box">
+    <div class="messages" id="messages">
+      <div class="msg bot">
+        <div class="bubble">🙏 <strong>Salam et Bienvenue !</strong>
+
+Je suis votre guide biblique. Posez-moi n'importe quelle question sur la Bible — personnages, récits, versets, significations théologiques — je vous répondrai avec précision et bienveillance.</div>
+        <div class="msg-time">📖 Prêt</div>
+      </div>
     </div>
 
-    <script>
-        // REMPLACEZ CECI PAR VOTRE VRAIE CLÉ API GEMINI
-        const API_KEY = 'AIzaSyBZsy1PaKYKCWk1CSb8OVVCXoF1fPfwr2Q';
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-        
-        async function askQuestion() {
-            const input = document.getElementById('question');
-            const question = input.value.trim();
-            
-            if (!question) return;
-            
-            // Afficher la question
-            addMessage(question, 'user');
-            input.value = '';
-            
-            // Désactiver le bouton
-            const btn = document.getElementById('sendBtn');
-            btn.disabled = true;
-            document.getElementById('typing').style.display = 'block';
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{
-                                text: `Tu es un expert biblique, théologien et historien. Tu réponds aux questions sur la Bible avec précision, en citant les versets (livre, chapitre, verset). Si tu ne sais pas, tu dis "Je ne sais pas". Sois humble, bienveillant et parle en français. La question est: ${question}`
-                            }]
-                        }],
-                        generationConfig: {
-                            temperature: 0.7,
-                            maxOutputTokens: 1000
-                        }
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    console.error('Erreur API:', data.error);
-                    addMessage('❌ Erreur de clé API. Vérifiez votre clé Google Gemini.', 'bot');
-                } else {
-                    const reponse = data.candidates[0].content.parts[0].text;
-                    addMessage(reponse, 'bot');
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                addMessage('❌ Désolé, une erreur est survenue. Vérifiez votre connexion internet.', 'bot');
-            } finally {
-                btn.disabled = false;
-                document.getElementById('typing').style.display = 'none';
-            }
-        }
-        
-        function addMessage(text, sender) {
-            const messagesDiv = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'message-bubble';
-            bubble.textContent = text;
-            
-            const time = document.createElement('div');
-            time.className = 'message-time';
-            time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            messageDiv.appendChild(bubble);
-            messageDiv.appendChild(time);
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-    </script>
+    <div class="typing-wrap" id="typing">
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="suggestions" id="suggestions">
+      <button class="suggestion-btn" onclick="usesuggestion(this)">Qui est David ?</button>
+      <button class="suggestion-btn" onclick="usesuggestion(this)">L'amour selon la Bible</button>
+      <button class="suggestion-btn" onclick="usesuggestion(this)">Les 10 commandements</button>
+      <button class="suggestion-btn" onclick="usesuggestion(this)">La résurrection de Jésus</button>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="question" placeholder="Posez votre question biblique…"
+        onkeydown="if(event.key==='Enter')askQuestion()" />
+      <button class="send-btn" id="sendBtn" onclick="askQuestion()">Envoyer ✦</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    Propulsé par Claude AI · <a href="https://github.com" target="_blank">Publier sur GitHub Pages</a>
+  </div>
+</div>
+
+<script>
+  const SYSTEM_PROMPT = `Tu es un expert biblique, théologien et historien chrétien de haut niveau. Tu réponds uniquement aux questions sur la Bible (Ancien et Nouveau Testament).
+
+Règles :
+- Cite toujours les références précises (Livre Chapitre:Verset, ex: Jean 3:16)
+- Structure ta réponse clairement
+- Sois humble, bienveillant, pédagogue
+- Réponds toujours en français
+- Si une question est hors sujet biblique, redirige poliment
+- Maximum 400 mots par réponse`;
+
+  const history = [];
+
+  async function askQuestion() {
+    const input = document.getElementById('question');
+    const question = input.value.trim();
+    if (!question) return;
+
+    addMessage(question, 'user');
+    input.value = '';
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('typing').classList.add('active');
+    document.getElementById('suggestions').style.display = 'none';
+
+    history.push({ role: 'user', content: question });
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: SYSTEM_PROMPT,
+          messages: history
+        })
+      });
+
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || "❌ Réponse indisponible.";
+
+      history.push({ role: 'assistant', content: reply });
+      addMessage(reply, 'bot');
+
+    } catch (e) {
+      addMessage('❌ Erreur de connexion. Vérifiez votre accès internet.', 'bot');
+    } finally {
+      document.getElementById('sendBtn').disabled = false;
+      document.getElementById('typing').classList.remove('active');
+    }
+  }
+
+  function addMessage(text, sender) {
+    const box = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = `msg ${sender}`;
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    const time = document.createElement('div');
+    time.className = 'msg-time';
+    const now = new Date();
+    time.textContent = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    div.appendChild(bubble);
+    div.appendChild(time);
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function usesuggestion(btn) {
+    document.getElementById('question').value = btn.textContent;
+    askQuestion();
+  }
+</script>
 </body>
 </html>
